@@ -9,7 +9,7 @@
 
         "MAIL_SERVER" : "smtp.gmail.com",
         "MAIL_PORT" : 465,
-        "MAIL_USERNAME" : "cardioinsightofficial@gmail.com",
-        "MAIL_PASSWORD" : "mqfl nmij onhp aijj"
+        "MAIL_USERNAME" : "",
+        "MAIL_PASSWORD" : ""
     }
 }
