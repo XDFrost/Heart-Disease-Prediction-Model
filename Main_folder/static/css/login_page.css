@@ -3,7 +3,7 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url(../img/main_back.jpg);
+    background-image: url(../assets/img/main_back.jpg);
     background-repeat: no-repeat;
     height: 95vh;
     width: 95vw;
@@ -80,12 +80,12 @@ h2 {
     font-size: 17px; 
     box-shadow: #f2f2f2;
     padding: 0 15%;
-    padding-left: 100px;
+    /* padding-left: 100px; */
     text-decoration: solid;
     font-weight: 200;
     align-items: center;
     color: #FFFFFF;
-    margin-left: 45px; 
+    margin-left: 34px; 
 }
 
   .form .message {
@@ -177,7 +177,7 @@ h2 {
     display: inline-block;
     box-shadow: #000000;  
     margin-top: 0px;  
-    margin-left: 180px;
+    margin-left: 110px;
     font-size: large;
     width: 6vw;
     font-size: large;
@@ -213,4 +213,23 @@ form {
     top: 0;
     z-index: 0.5;
     filter: opacity(0.5);
+}
+
+.flash {
+    position: relative;
+    color: #ffffff;
+    font-size: 19.5px;
+    font-weight: 200;
+    align-items: center;
+    margin-bottom: 10px;
+    /* display: inline; */
+    /* text-align: justify; */
+}
+
+.mes {
+    padding: 7px;
+    width: 250px;
+    border : 2px solid #ffff;
+    border-radius: 20px;
+    margin-left: 20px;
 }

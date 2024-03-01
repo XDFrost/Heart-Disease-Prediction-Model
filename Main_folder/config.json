@@ -1,0 +1,15 @@
+{
+    "params" :
+    {
+        "local_server" : "True",
+        "local_URI" : "mysql://root:@localhost/cardioinsight", 
+        "production_URI" : "mysql://root:@localhost/cardioinsight"  ,
+
+        "secret_key" : "mysecretkey",
+
+        "MAIL_SERVER" : "smtp.gmail.com",
+        "MAIL_PORT" : 465,
+        "MAIL_USERNAME" : "cardioinsightofficial@gmail.com",
+        "MAIL_PASSWORD" : "mqfl nmij onhp aijj"
+    }
+}
