@@ -1,8 +1,14 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-import json
+from flask_login import LoginManager, UserMixin, login_user, logout_user
 from flask_mail import Mail
-
+from flask_bcrypt import Bcrypt
+import pickle as pkl
+import pandas as pd
+import json
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 app = Flask(__name__)
@@ -13,36 +19,45 @@ with open('config.json', 'r') as c:
 
     
 local_server = params['local_server']
+app.secret_key = os.getenv("secret_key")
 
 
 if(local_server == "True"):
     app.config['SQLALCHEMY_DATABASE_URI'] = params['local_URI']
 else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = params['production_URI']   
-
-
-app.secret_key = params['secret_key']
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("production_URI")  
 
 
 app.config.update(                                       # Sending mail
     MAIL_SERVER = params['MAIL_SERVER'],                 # Default gmail server
     MAIL_PORT = params['MAIL_PORT'],                     # Default gmail port
     MAIL_USE_SSL = True,                                 # Using authentication
-    MAIL_USERNAME = params['MAIL_USERNAME'],             # fetching mail
-    MAIL_PASSWORD = params['MAIL_PASSWORD'],             # fetching app pass
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME"),             # fetching mail
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD"),             # fetching app pass
 )
-mail = Mail(app)  
 
 
-db = SQLAlchemy(app)
+mail = Mail()
+login_manager = LoginManager()
+Bcrypt = Bcrypt()
+db = SQLAlchemy()
 
 
-class users(db.Model):
+login_manager.init_app(app)
+Bcrypt.init_app(app)
+db.init_app(app)  
+mail.init_app(app)
+
+
+class users(UserMixin, db.Model):
     sno = db.Column(db.Integer, primary_key = True)
     Username = db.Column(db.String(80), unique=True, nullable=False)
     Password = db.Column(db.String(80), nullable=False)
     Phone_num = db.Column(db.String(80), nullable=False)
     Mail_id = db.Column(db.String(80), unique = True, nullable=False)
+
+    def get_id(self):
+        return str(self.sno)
 
 
 class contact(db.Model):
@@ -51,6 +66,15 @@ class contact(db.Model):
     contact_email = db.Column(db.String(220), nullable=False)
     contact_phone_num = db.Column(db.String(220), nullable=False)
     contact_message = db.Column(db.String(220), nullable=False)
+
+
+with app.app_context():
+    db.create_all()
+
+
+@login_manager.user_loader
+def load_user(sno):
+    return users.query.get(int(sno))
 
 
 @app.route('/')
@@ -66,13 +90,15 @@ def login_page():
         Password = request.form.get('Password')
         user = users.query.filter_by(Username = Username).first()
         if(user):
-            if(user.Password == Password):
-                return render_template('home_page.html', params = params)
+            valid = Bcrypt.check_password_hash(user.Password, Password)
+            if(valid):
+                login_user(user)
+                return redirect(url_for('home_page'))
             flash('Invalid Username or Password. Please Check your Username or Password.')
-            return render_template('login_page.html', params = params)
+            return redirect(url_for('login_page'))
         else:
             flash('You are not registered. Please Sign Up.')
-            return render_template('login_page.html', params = params)
+            return redirect(url_for('login_page'))
                 
     return render_template('login_page.html', params = params)
 
@@ -89,16 +115,16 @@ def signup_page():
         mail = users.query.filter_by(Mail_id = Mail_id).first()
         if(user):
             flash('Username already exists. Please try another Username.')
-            return render_template('signup.html', params = params)
+            return redirect(url_for('signup_page'))
         elif(mail):
             flash('Mail Id already exists. Please try another Mail Id.')
-            return render_template('signup.html', params = params)
+            return redirect(url_for('signup_page'))
         else:
             # Add entry to the database
-            entry = users(Username = Username, Password = Password, Phone_num = Phone_num, Mail_id = Mail_id)
+            entry = users(Username = Username, Password = Bcrypt.generate_password_hash(Password).decode('utf-8'), Phone_num = Phone_num, Mail_id = Mail_id)
             db.session.add(entry)
             db.session.commit()
-            return render_template('home_page.html', params = params)
+            return redirect(url_for('login_page'))
         
     return render_template('signup.html', params = params)
 
@@ -132,9 +158,20 @@ def contact_page():
                           "Phone number: " + contact_phone_num + "\n" +
                           "Message sent: " + contact_message)
         
-        return render_template('home_page.html', params = params)
+        return redirect(url_for('home_page'))
         
     return render_template('contact_page.html', params = params)
+
+
+@app.route('/features_page')
+def features_page():
+    return render_template('features_page.html', params = params)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('initial_page'))
 
 
 if __name__ == '__main__':
