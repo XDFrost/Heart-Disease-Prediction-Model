@@ -105,4 +105,6 @@
     z-index: 1;
 }
 
-
+#user {
+    cursor: pointer;
+}

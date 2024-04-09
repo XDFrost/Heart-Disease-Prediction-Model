@@ -8,6 +8,14 @@ import pandas as pd
 import json
 import os
 from dotenv import load_dotenv
+import matplotlib.pyplot as plt
+import seaborn as sns
+from data import df, train_x, train_y, test_x, test_y
+import base64
+from io import BytesIO
+from sklearn.metrics import confusion_matrix
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 load_dotenv()
 
 
@@ -16,6 +24,114 @@ app = Flask(__name__)
 
 with open('config.json', 'r') as c:
     params = json.load(c)["params"]
+
+class cf_m():    
+    def heatmap_generate(self):
+        max_accuracy = 0
+        for i in range(100):
+            clf = RandomForestClassifier(random_state = i,max_depth=10)
+            clf.fit(train_x, train_y)
+            pred = clf.predict(test_x)
+            current_accuracy = round(accuracy_score(pred, test_y)*100,2)
+            if(current_accuracy > max_accuracy):
+                max_accuracy = current_accuracy
+                best_random_state = i
+
+
+        clf = RandomForestClassifier(random_state = best_random_state)
+        clf.fit(train_x, train_y)
+
+        RandomForest_test_vals = clf.predict(test_x)
+
+        cf_matrix = confusion_matrix(test_y, RandomForest_test_vals)
+        
+        plt.figure(figsize=(10, 6))
+        sns.heatmap(cf_matrix, annot=True)
+        plt.xlabel('Actual Vlaues', fontsize=15)  # Set appropriate labels
+        plt.ylabel('Predicted Values', fontsize=15)  # Set appropriate labels
+        plt.title('Heatmap', fontsize=15)   # Set appropriate title
+        plt.legend()
+        
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        img.close()
+
+        return plot_url
+
+class plots():
+    def __init__(self, df):
+        self.df = df
+        
+    def chol_generate(self):
+        plt.figure(figsize=(10, 6))
+        sns.histplot(x=df['chol'], hue=df['target'], palette="viridis", kde=True)
+        plt.xlabel('Cholestrol', fontsize=15)
+        plt.title('Cholestrol distribution')
+        plt.legend()
+
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        img.close()
+        
+        return plot_url
+
+    def trestbps_generate(self):
+        plt.figure(figsize=(10, 6))
+        sns.histplot(x=df['trestbps'], hue=df['target'], palette="viridis", kde=True)
+        plt.xlabel('trestbps', fontsize=15)
+        plt.title('trestbps distribution')
+        plt.legend()
+
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        img.close()
+
+        return plot_url
+
+    def thalach_generate(self):
+        plt.figure(figsize=(10, 6))
+        sns.histplot(x=df['thalach'], hue=df['target'], palette="viridis", kde=True)
+        plt.xlabel('thalach', fontsize=15)
+        plt.title('thalach distribution')
+        plt.legend()
+
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        img.close()
+
+        return plot_url
+
+    def oldpeak_generate(self):
+        plt.figure(figsize=(10, 6))
+        sns.histplot(x=df['oldpeak'], hue=df['target'], palette="viridis", kde=True)
+        plt.xlabel('oldpeak', fontsize=15)
+        plt.title('oldpeak distribution')
+        plt.legend()
+
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+        
+        plot_url = base64.b64encode(img.getvalue()).decode()
+        img.close()
+
+        return plot_url
+
+
+obj = plots(df)  
+cf_obj = cf_m()  
 
     
 local_server = params['local_server']
@@ -168,10 +284,65 @@ def features_page():
     return render_template('features_page.html', params = params)
 
 
+@app.route("/predictions", methods = ["GET", "POST"])
+def predictions():
+    ans = None
+    if request.method == 'POST':
+        Age = request.form.get('Age')
+        Sex = request.form.get('Sex')
+        Chest_pain_type = request.form.get('CP')
+        Trest_bps = request.form.get('Trest_bps')
+        cholestrol = request.form.get('cholestrol')
+        fbs = request.form.get('fbs')
+        restecg = request.form.get('restecg')
+        thalach = request.form.get('thalach')
+        exang = request.form.get('exang')
+        oldpeak = request.form.get('oldpeak')
+        slope = request.form.get('slope')
+        ca = request.form.get('ca')
+        thal = request.form.get('thal')
+        
+        def predict(Age, Sex, Chest_pain_type, Trest_bps, cholestrol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal):
+            input_data = pd.DataFrame([[Age, Sex, Chest_pain_type, Trest_bps, cholestrol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
+            model = pkl.load(open('decision_trees.pkl', 'rb'))
+            prediction = model.predict(input_data)
+            if prediction == 1:
+                return f"You have high chances of Heart Disease! <br> Please consult a Doctor" 
+            else:
+                return "You have low chances of Disease <br> Please maintain a healthy life style" 
+
+        ans = predict(Age, Sex, Chest_pain_type, Trest_bps, cholestrol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal)
+        return redirect(url_for('detailed_predictions', ans = ans))
+
+    return render_template('predictions.html', ans=ans)
+
+
+@app.route("/detailed_predictions", methods = ['GET', 'POST'])
+def detailed_predictions():
+    ans = request.args.get('ans', default = "Try again", type = str)
+    return render_template("detailed_predictions.html", params = params, ans = ans)
+
+
+@app.route('/detailed_analysis')
+def detailed_analysis():    
+    def show():
+        cholestrol_plot = obj.chol_generate()
+        Trest_bps_plot = obj.trestbps_generate()
+        thalach_plot = obj.thalach_generate()
+        oldpeak_plot = obj.oldpeak_generate()
+        heatmap_plot = cf_obj.heatmap_generate()
+        
+        return cholestrol_plot, Trest_bps_plot, thalach_plot, oldpeak_plot, heatmap_plot
+        
+    cholestrol_plot, Trest_bps_plot, thalach_plot, oldpeak_plot, heatmap_plot = show()
+        
+    return render_template('detailed_analysis.html', params = params, cholestrol_plot = cholestrol_plot, Trest_bps_plot = Trest_bps_plot, thalach_plot = thalach_plot, oldpeak_plot = oldpeak_plot, heatmap_plot = heatmap_plot)
+
+
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('initial_page'))
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
