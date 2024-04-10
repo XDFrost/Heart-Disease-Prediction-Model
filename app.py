@@ -14,8 +14,6 @@ from data import df, train_x, train_y, test_x, test_y
 import base64
 from io import BytesIO
 from sklearn.metrics import confusion_matrix
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.metrics import accuracy_score
 load_dotenv()
 
 
@@ -34,9 +32,9 @@ class cf_m():
         
         plt.figure(figsize=(10, 6))
         sns.heatmap(cf_matrix, annot=True)
-        plt.xlabel('Actual Values', fontsize=15)  # Set appropriate labels
-        plt.ylabel('Predicted Values', fontsize=15)  # Set appropriate labels
-        plt.title('Heatmap', fontsize=15)   # Set appropriate title
+        plt.xlabel('Actual Values', fontsize=15)  
+        plt.ylabel('Predicted Values', fontsize=15)  
+        plt.title('Heatmap', fontsize=15)  
         plt.legend()
         
         img = BytesIO()
