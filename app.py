@@ -49,7 +49,7 @@ class cf_m():
         
         plt.figure(figsize=(10, 6))
         sns.heatmap(cf_matrix, annot=True)
-        plt.xlabel('Actual Vlaues', fontsize=15)  # Set appropriate labels
+        plt.xlabel('Actual Values', fontsize=15)  # Set appropriate labels
         plt.ylabel('Predicted Values', fontsize=15)  # Set appropriate labels
         plt.title('Heatmap', fontsize=15)   # Set appropriate title
         plt.legend()
