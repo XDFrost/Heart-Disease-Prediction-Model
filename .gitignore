@@ -2,3 +2,4 @@ __pycache__
 Windows_venv
 Linux_venv
 .vscode
+.env
