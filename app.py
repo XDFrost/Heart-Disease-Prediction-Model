@@ -14,8 +14,8 @@ from data import df, train_x, train_y, test_x, test_y
 import base64
 from io import BytesIO
 from sklearn.metrics import confusion_matrix
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.metrics import accuracy_score
 load_dotenv()
 
 
@@ -27,23 +27,25 @@ with open('config.json', 'r') as c:
 
 class cf_m():    
     def heatmap_generate(self):
-        max_accuracy = 0
-        for i in range(100):
-            clf = RandomForestClassifier(random_state = i,max_depth=10)
-            clf.fit(train_x, train_y)
-            pred = clf.predict(test_x)
-            current_accuracy = round(accuracy_score(pred, test_y)*100,2)
-            if(current_accuracy > max_accuracy):
-                max_accuracy = current_accuracy
-                best_random_state = i
+        # max_accuracy = 0
+        # for i in range(100):
+        #     clf = RandomForestClassifier(random_state = i,max_depth=10)
+        #     clf.fit(train_x, train_y)
+        #     pred = clf.predict(test_x)
+        #     current_accuracy = round(accuracy_score(pred, test_y)*100,2)
+        #     if(current_accuracy > max_accuracy):
+        #         max_accuracy = current_accuracy
+        #         best_random_state = i
 
 
-        clf = RandomForestClassifier(random_state = best_random_state)
-        clf.fit(train_x, train_y)
+        # clf = RandomForestClassifier(random_state = best_random_state)
+        # clf.fit(train_x, train_y)
+        # RandomForest_test_vals = clf.predict(test_x)
 
-        RandomForest_test_vals = clf.predict(test_x)
-
-        cf_matrix = confusion_matrix(test_y, RandomForest_test_vals)
+        model = pkl.load(open('decision_trees.pkl', 'rb'))
+        prediction = model.predict(test_x)
+    
+        cf_matrix = confusion_matrix(test_y, prediction)
         
         plt.figure(figsize=(10, 6))
         sns.heatmap(cf_matrix, annot=True)
@@ -266,8 +268,8 @@ def contact_page():
     
         #sending mail
         mail.send_message('CONTACT MESSAGE RECEIVED',
-                          sender = params['MAIL_USERNAME'],
-                          recipients = [contact_email, params['MAIL_USERNAME']],
+                          sender = os.getenv("MAIL_USERNAME"),
+                          recipients = [contact_email, os.getenv("MAIL_USERNAME")],
                           body = "Here are your contents: " + "\n" + "\n" + 
                           "Name: " + contact_name + "\n" +
                           "Email: " + contact_email + "\n" +
