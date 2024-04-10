@@ -37,8 +37,8 @@
 }
 
 .logo {
-    height: 70px;
-    width: 70px;
+    height: 50px;
+    width: 50px;
     cursor: pointer;
 }
 
@@ -105,6 +105,45 @@
     z-index: 1;
 }
 
+#pop {
+    position: absolute;
+    color: #ffff;
+    z-index: 1;
+    top: 11%;
+    left: 88%;
+    border: 1px solid #ffff;
+    border-radius: 10px;
+    opacity: 0.94;
+    box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(50px);
+    display: none;
+}
+
+#pop ul {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 20px;
+    flex-direction: column;
+    padding: 15px;
+    text-align: justify;
+    list-style-type: none;
+}
+
+#pop ul li {
+    cursor: pointer;
+}
+
 #user {
     cursor: pointer;
+}
+
+.bor {
+    border: 1px solid #ffff;
+    width: 100%;
+}
+
+a {
+    text-decoration: none;
+    color: #ffff;
 }

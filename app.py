@@ -339,6 +339,28 @@ def detailed_analysis():
     return render_template('detailed_analysis.html', params = params, cholestrol_plot = cholestrol_plot, Trest_bps_plot = Trest_bps_plot, thalach_plot = thalach_plot, oldpeak_plot = oldpeak_plot, heatmap_plot = heatmap_plot)
 
 
+@app.route('/change_pass', methods = ['GET', 'POST'])
+def change_pass():
+    if request.method == 'POST':
+        Username = request.form.get('Username')
+        old_pass = request.form.get('old')
+        new_pass = request.form.get('new')
+        print(Username, old_pass, new_pass)
+        user = users.query.filter_by(Username = Username).first()
+        if(user):
+            valid = Bcrypt.check_password_hash(user.Password, old_pass)
+            if(valid):
+                user.Password = Bcrypt.generate_password_hash(new_pass).decode('utf-8')
+                db.session.commit()
+                return redirect(url_for('login_page'))
+            flash('Invalid Username or Password. Please Check your Username or Password.')
+            return redirect(url_for('change_pass'))
+        else:
+            flash('You are not registered. Please Sign Up.')
+            return redirect(url_for('change_pass'))
+    return render_template('change_pass.html', params = params)
+
+
 @app.route('/logout')
 def logout():
     logout_user()
