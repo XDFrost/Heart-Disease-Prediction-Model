@@ -27,21 +27,6 @@ with open('config.json', 'r') as c:
 
 class cf_m():    
     def heatmap_generate(self):
-        # max_accuracy = 0
-        # for i in range(100):
-        #     clf = RandomForestClassifier(random_state = i,max_depth=10)
-        #     clf.fit(train_x, train_y)
-        #     pred = clf.predict(test_x)
-        #     current_accuracy = round(accuracy_score(pred, test_y)*100,2)
-        #     if(current_accuracy > max_accuracy):
-        #         max_accuracy = current_accuracy
-        #         best_random_state = i
-
-
-        # clf = RandomForestClassifier(random_state = best_random_state)
-        # clf.fit(train_x, train_y)
-        # RandomForest_test_vals = clf.predict(test_x)
-
         model = pkl.load(open('decision_trees.pkl', 'rb'))
         prediction = model.predict(test_x)
     
