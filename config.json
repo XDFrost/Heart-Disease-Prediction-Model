@@ -4,8 +4,6 @@
         "local_server" : "True",
         "local_URI" : "mysql://root:@localhost/cardioinsight", 
 
-        "secret_key" : "mysecretkey",
-
         "MAIL_SERVER" : "smtp.gmail.com",
         "MAIL_PORT" : 465
     }
