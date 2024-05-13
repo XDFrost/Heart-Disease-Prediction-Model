@@ -15,7 +15,7 @@ import base64
 from io import BytesIO
 from sklearn.metrics import confusion_matrix
 load_dotenv()
-
+    
 
 app = Flask(__name__)
 
@@ -289,12 +289,12 @@ def predictions():
         
         def predict(Age, Sex, Chest_pain_type, Trest_bps, cholestrol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal):
             input_data = pd.DataFrame([[Age, Sex, Chest_pain_type, Trest_bps, cholestrol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
-            model = pkl.load(open('decision_trees.pkl', 'rb'))
+            model = pkl.load(open('decision_trees.pkl',                                                                                                                                                                                                                                                                                                          'rb'))
             prediction = model.predict(input_data)
             if prediction == 1:
                 return f"You have high chances of Heart Disease! <br> Please consult a Doctor" 
             else:
-                return "You have low chances of Disease <br> Please maintain a healthy life style" 
+                return "You have low chances of Disease <br> Please maintain a healthy life style"  
 
         ans = predict(Age, Sex, Chest_pain_type, Trest_bps, cholestrol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal)
         return redirect(url_for('detailed_predictions', ans = ans))
@@ -304,7 +304,7 @@ def predictions():
 
 @app.route("/detailed_predictions", methods = ['GET', 'POST'])
 def detailed_predictions():
-    ans = request.args.get('ans', default = "Try again", type = str)
+    ans = request.args.get('ans', default = "Try again", type = str)                                                                                                                                                                                                                                                                                                                                                
     return render_template("detailed_predictions.html", params = params, ans = ans)
 
 
